@@ -5,14 +5,18 @@ from typing import List, Optional, Dict, Any
 from app.services.gmail_client import GmailClient
 
 router = APIRouter()
-
-# Create a single instance of the Gmail client to be reused
 gmail_client = GmailClient()
 
 @router.get("/test")
 def test_email():
-    """Simple test endpoint to check if the email API is working."""
-    return {"msg": "Email endpoint working"}
+    """
+    Test endpoint to check if the backend can connect to Gmail API using current credentials.
+    """
+    try:
+        labels = gmail_client.get_labels()
+        return {"msg": "Successfully connected to Gmail API", "label_count": len(labels)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Gmail API connection failed: {str(e)}")
 
 @router.get("/labels")
 def get_labels():
@@ -26,8 +30,7 @@ def get_labels():
 @router.get("/messages")
 def get_messages(
     max_results: int = Query(10, description="Maximum number of messages to return"),
-    query: str = Query("", description="Gmail search query")
-):
+    query: str = Query("", description="Gmail search query")):
     """Get messages from Gmail with optional filtering."""
     try:
         messages = gmail_client.get_messages(max_results=max_results, query=query)
@@ -49,9 +52,19 @@ def get_message(message_id: str = Path(..., description="ID of the message to re
 @router.post("/messages/{message_id}/labels/{label_id}")
 def add_label(
     message_id: str = Path(..., description="ID of the message"),
-    label_id: str = Path(..., description="ID of the label to add")
-):
-    """Add a label to a message."""
+    label_id: str = Path(..., description="ID of the label to add")):
+    """
+    Add a label to a message.
+
+    This endpoint adds a specified label to a message with the given ID.
+
+    Args:
+        message_id: ID of the message to which the label will be added.
+        label_id: ID of the label to add to the message.
+
+    Returns:
+        A success message if the label was added successfully. Otherwise, raises an HTTPException.
+    """
     try:
         success = gmail_client.add_label_to_message(message_id, label_id)
         if not success:
@@ -63,9 +76,17 @@ def add_label(
 @router.delete("/messages/{message_id}/labels/{label_id}")
 def remove_label(
     message_id: str = Path(..., description="ID of the message"),
-    label_id: str = Path(..., description="ID of the label to remove")
-):
-    """Remove a label from a message."""
+    label_id: str = Path(..., description="ID of the label to remove")):
+    """
+    Removes a specified label from a message with the given ID.
+
+    Args:
+        message_id: ID of the message from which the label will be removed.
+        label_id: ID of the label to remove from the message.
+
+    Returns:
+        A success message if the label was removed successfully. Otherwise, raises an HTTPException.
+    """
     try:
         success = gmail_client.remove_label_from_message(message_id, label_id)
         if not success:
