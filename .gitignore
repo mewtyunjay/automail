@@ -6,6 +6,7 @@ backend/dist/
 backend/wheels/
 backend/*.egg-info
 backend/.venv
+backend/idea.md
 
 .env
 test_gmail_api.py
