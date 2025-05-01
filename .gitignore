@@ -1,11 +1,15 @@
 # === Backend (Python) ===
 backend/__pycache__/
 backend/*.py[oc]
+*.pyc
 backend/build/
 backend/dist/
 backend/wheels/
 backend/*.egg-info
 backend/.venv
+
+**/__pycache__/
+**/*.pyc
 
 .env
 test_gmail_api.py
@@ -46,3 +50,4 @@ dashboard/*.sw?
 
 # === Credentials ===
 backend/credentials/
+backend/app/api/__pycache__/email.cpython-311.pyc

@@ -3,9 +3,12 @@ from fastapi import APIRouter, HTTPException, Query, Path, Body
 from typing import List, Optional, Dict, Any
 
 from app.services.gmail_client import GmailClient
+from app.agents.summarizer import SummarizerAgent
 
 router = APIRouter()
 gmail_client = GmailClient()
+summarizer = SummarizerAgent()
+
 
 @router.get("/test")
 def test_email():
@@ -126,5 +129,24 @@ def mark_as_unread(message_id: str = Path(..., description="ID of the message"))
         if not success:
             raise HTTPException(status_code=400, detail=f"Failed to mark message {message_id} as unread")
         return {"success": True, "message_id": message_id}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@router.get("/messages/{message_id}/summary")
+def summarize_message(message_id: str = Path(..., description="ID of the message to summarize")):
+    """
+    Summarize a specific email message.
+
+    Args:
+        message_id: ID of the message to summarize
+
+    Returns:
+        A dictionary containing the summary of the message as a string
+    """
+    try:
+        summary = summarizer.run(message_id)
+        if not summary:
+            raise HTTPException(status_code=404, detail=f"Message {message_id} not found")
+        return {"summary": summary}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

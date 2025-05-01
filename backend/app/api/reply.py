@@ -23,8 +23,7 @@ def test_reply():
 @router.post("/message/{message_id}")
 def reply_to_message(
     message_id: str = Path(..., description="ID of the message to reply to"),
-    reply_data: ReplyRequest = Body(...)
-):
+    reply_data: ReplyRequest = Body(...)):
     """Reply to a specific email message."""
     try:
         reply_id = gmail_client.reply_to_message(
@@ -48,7 +47,7 @@ def send_email(
     body_html: Optional[str] = Body(None),
     cc: Optional[str] = Body(None),
     bcc: Optional[str] = Body(None)
-):
+    ):
     """Send a new email message."""
     try:
         message_id = gmail_client.send_message(
