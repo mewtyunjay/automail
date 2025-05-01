@@ -8,7 +8,7 @@ backend/*.egg-info
 backend/.venv
 
 .env
-
+test_gmail_api.py
 # === Frontend (Node/JS) ===
 dashboard/logs
 dashboard/*.log
