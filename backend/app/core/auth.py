@@ -15,8 +15,11 @@ SCOPES = [
     'https://www.googleapis.com/auth/gmail.readonly',
     'https://www.googleapis.com/auth/gmail.send',
     'https://www.googleapis.com/auth/gmail.modify',
-    'https://www.googleapis.com/auth/cloud-platform',
     'https://www.googleapis.com/auth/pubsub',
+    'https://www.googleapis.com/auth/cloud-platform',
+    'openid',
+    'https://www.googleapis.com/auth/userinfo.profile',
+    'https://www.googleapis.com/auth/userinfo.email'
 ]
 
 def get_google_auth_url() -> str:
@@ -60,10 +63,7 @@ def exchange_code_for_token(code: str) -> Dict:
             scopes=SCOPES,
             redirect_uri=os.environ.get("GOOGLE_REDIRECT_URI", "http://localhost:8000/auth/callback")
         )
-        # Set autogenerate_code_verifier=False to avoid PKCE which might cause issues
-        # with scope changes
         flow.autogenerate_code_verifier = False
-        # Add include_granted_scopes=True to accept any scopes granted by the user
         flow.fetch_token(code=code)
         creds = flow.credentials
         token = {
@@ -82,7 +82,7 @@ def exchange_code_for_token(code: str) -> Dict:
 
 def get_user_info(access_token: str) -> Dict:
     """
-    Retrieves user info (email, name, etc.) from Google's userinfo endpoint.
+    Retrieves user info (email, name, etc.) from Google's OpenID Connect userinfo endpoint.
 
     Args:
         access_token (str): The access token.
@@ -91,8 +91,9 @@ def get_user_info(access_token: str) -> Dict:
         Dict: The user info dictionary.
     """
     try:
+        # Using the OpenID Connect userinfo endpoint
         resp = requests.get(
-            "https://www.googleapis.com/oauth2/v2/userinfo",
+            "https://openidconnect.googleapis.com/v1/userinfo",
             headers={"Authorization": f"Bearer {access_token}"}
         )
         resp.raise_for_status()
