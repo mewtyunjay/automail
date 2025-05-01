@@ -69,7 +69,11 @@ def add_label(
         success = gmail_client.add_label_to_message(message_id, label_id)
         if not success:
             raise HTTPException(status_code=400, detail=f"Failed to add label {label_id} to message {message_id}")
-        return {"success": True}
+        return {
+            "success": True,
+            "message_id": message_id,
+            "label_id": label_id
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -91,7 +95,36 @@ def remove_label(
         success = gmail_client.remove_label_from_message(message_id, label_id)
         if not success:
             raise HTTPException(status_code=400, detail=f"Failed to remove label {label_id} from message {message_id}")
-        return {"success": True}
+        return {
+            "success": True,
+            "message_id": message_id,
+            "label_id": label_id
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@router.post("/messages/{message_id}/mark_read")
+def mark_as_read(message_id: str = Path(..., description="ID of the message")):
+    """
+    Mark a message as read by removing the UNREAD label.
+    """
+    try:
+        success = gmail_client.remove_label_from_message(message_id, "UNREAD")
+        if not success:
+            raise HTTPException(status_code=400, detail=f"Failed to mark message {message_id} as read")
+        return {"success": True, "message_id": message_id}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@router.post("/messages/{message_id}/mark_unread")
+def mark_as_unread(message_id: str = Path(..., description="ID of the message")):
+    """
+    Mark a message as unread by adding the UNREAD label.
+    """
+    try:
+        success = gmail_client.add_label_to_message(message_id, "UNREAD")
+        if not success:
+            raise HTTPException(status_code=400, detail=f"Failed to mark message {message_id} as unread")
+        return {"success": True, "message_id": message_id}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
