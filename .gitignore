@@ -1,0 +1,48 @@
+# === Backend (Python) ===
+backend/__pycache__/
+backend/*.py[oc]
+backend/build/
+backend/dist/
+backend/wheels/
+backend/*.egg-info
+backend/.venv
+
+.env
+
+# === Frontend (Node/JS) ===
+dashboard/logs
+dashboard/*.log
+dashboard/npm-debug.log*
+dashboard/yarn-debug.log*
+dashboard/yarn-error.log*
+dashboard/pnpm-debug.log*
+dashboard/lerna-debug.log*
+
+dashboard/node_modules
+dashboard/dist
+dashboard/dist-ssr
+dashboard/*.local
+
+# Editor directories and files (Frontend)
+dashboard/.vscode/*
+!dashboard/.vscode/extensions.json
+dashboard/.idea
+dashboard/.DS_Store
+dashboard/*.suo
+dashboard/*.ntvs*
+dashboard/*.njsproj
+dashboard/*.sln
+dashboard/*.sw?
+
+# === Monorepo root ignores (optional, add as needed) ===
+.DS_Store
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+dashboard/*.sw?
+
+# === Credentials ===
+backend/credentials/
