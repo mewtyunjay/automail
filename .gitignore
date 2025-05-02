@@ -1,7 +1,7 @@
 # === Backend (Python) ===
 backend/__pycache__/
 backend/*.py[oc]
-*.pyc
+backend/**/*.pyc
 backend/build/
 backend/dist/
 backend/wheels/

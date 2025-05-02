@@ -150,3 +150,18 @@ def summarize_message(message_id: str = Path(..., description="ID of the message
         return {"summary": summary}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/summarize-content", response_model=str)
+async def summarize_content(content: str = Body(..., embed=True)) -> str:
+    """Summarize email content directly passed in the request body."""
+    try:
+        # Use the correct methods from SummarizerAgent
+        prompt = summarizer.compose_prompt(content)
+        summary = summarizer.call_agent(prompt)
+        if not summary:
+             raise HTTPException(status_code=500, detail="Summarization failed or returned empty.")
+        return summary
+    except Exception as e:
+        # Log the exception details if you have logging configured
+        # logger.error(f"Error summarizing content: {str(e)}") 
+        raise HTTPException(status_code=500, detail=f"Error during summarization: {str(e)}")
