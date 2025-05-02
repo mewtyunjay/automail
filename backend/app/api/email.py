@@ -4,10 +4,18 @@ from typing import List, Optional, Dict, Any
 
 from app.services.gmail_client import GmailClient
 from app.agents.summarizer import SummarizerAgent
+from app.agents.finance_agent import FinanceAgent
+from app.agents.todo_agent import TodoAgent
+from app.agents.reminder_agent import ReminderAgent
+from app.agents.nyu_agent import NYUAgent
 
 router = APIRouter()
 gmail_client = GmailClient()
 summarizer = SummarizerAgent()
+finance_agent = FinanceAgent()
+todo_agent = TodoAgent()
+reminder_agent = ReminderAgent()
+nyu_agent = NYUAgent()
 
 
 @router.get("/test")
@@ -165,3 +173,138 @@ async def summarize_content(content: str = Body(..., embed=True)) -> str:
         # Log the exception details if you have logging configured
         # logger.error(f"Error summarizing content: {str(e)}") 
         raise HTTPException(status_code=500, detail=f"Error during summarization: {str(e)}")
+
+
+@router.get("/messages/{message_id}/finance")
+def extract_finance(message_id: str = Path(..., description="ID of the message to extract financial information from")):
+    """
+    Extract financial information from a specific email message.
+
+    Args:
+        message_id: ID of the message to process
+
+    Returns:
+        A dictionary containing structured financial information
+    """
+    try:
+        finance_data = finance_agent.run(message_id)
+        if not finance_data:
+            raise HTTPException(status_code=404, detail=f"Message {message_id} not found or contains no financial information")
+        return {"finance_data": finance_data}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/messages/{message_id}/todos")
+def extract_todos(message_id: str = Path(..., description="ID of the message to extract todo items from")):
+    """
+    Extract todo items and action items from a specific email message.
+
+    Args:
+        message_id: ID of the message to process
+
+    Returns:
+        A dictionary containing structured todo items
+    """
+    try:
+        todos_data = todo_agent.run(message_id)
+        if not todos_data:
+            raise HTTPException(status_code=404, detail=f"Message {message_id} not found or contains no todo items")
+        return {"todos_data": todos_data}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/messages/{message_id}/reminders")
+def extract_reminders(message_id: str = Path(..., description="ID of the message to extract reminders from")):
+    """
+    Extract reminders and scheduled events from a specific email message.
+
+    Args:
+        message_id: ID of the message to process
+
+    Returns:
+        A dictionary containing structured reminder data
+    """
+    try:
+        reminders_data = reminder_agent.run(message_id)
+        if not reminders_data:
+            raise HTTPException(status_code=404, detail=f"Message {message_id} not found or contains no reminders")
+        return {"reminders_data": reminders_data}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/messages/{message_id}/nyu")
+def extract_nyu_info(message_id: str = Path(..., description="ID of the message to extract NYU information from")):
+    """
+    Extract NYU-related information from a specific email message.
+
+    Args:
+        message_id: ID of the message to process
+
+    Returns:
+        A dictionary containing structured NYU-related data
+    """
+    try:
+        nyu_data = nyu_agent.run(message_id)
+        if not nyu_data:
+            raise HTTPException(status_code=404, detail=f"Message {message_id} not found or contains no NYU information")
+        return {"nyu_data": nyu_data}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# @router.post("/process-content/finance")
+# async def process_finance_content(content: str = Body(..., embed=True)) -> Dict[str, Any]:
+#     """Extract financial information from email content directly passed in the request body."""
+#     try:
+#         prompt = finance_agent.compose_prompt(content)
+#         finance_data = finance_agent.call_agent(prompt)
+#         if not finance_data:
+#             raise HTTPException(status_code=500, detail="Financial extraction failed or returned empty.")
+#         return {"finance_data": finance_data}
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"Error during financial extraction: {str(e)}")
+
+
+# @router.post("/process-content/todos")
+# async def process_todos_content(content: str = Body(..., embed=True)) -> Dict[str, Any]:
+#     """Extract todo items from email content directly passed in the request body."""
+#     try:
+#         # We need to pass empty subject as it's required by the todo_agent
+#         prompt = todo_agent.compose_prompt("", content)
+#         todos_data = todo_agent.call_agent(prompt)
+#         if not todos_data:
+#             raise HTTPException(status_code=500, detail="Todo extraction failed or returned empty.")
+#         return {"todos_data": todos_data}
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"Error during todo extraction: {str(e)}")
+
+
+# @router.post("/process-content/reminders")
+# async def process_reminders_content(content: str = Body(..., embed=True)) -> Dict[str, Any]:
+#     """Extract reminders from email content directly passed in the request body."""
+#     try:
+#         # We need to pass empty subject and date as they're required by the reminder_agent
+#         prompt = reminder_agent.compose_prompt("", content, "")
+#         reminders_data = reminder_agent.call_agent(prompt)
+#         if not reminders_data:
+#             raise HTTPException(status_code=500, detail="Reminder extraction failed or returned empty.")
+#         return {"reminders_data": reminders_data}
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"Error during reminder extraction: {str(e)}")
+
+
+# @router.post("/process-content/nyu")
+# async def process_nyu_content(content: str = Body(..., embed=True)) -> Dict[str, Any]:
+#     """Extract NYU-related information from email content directly passed in the request body."""
+#     try:
+#         # We need to pass empty subject and sender as they're required by the nyu_agent
+#         prompt = nyu_agent.compose_prompt("", "", content)
+#         nyu_data = nyu_agent.call_agent(prompt)
+#         if not nyu_data:
+#             raise HTTPException(status_code=500, detail="NYU information extraction failed or returned empty.")
+#         return {"nyu_data": nyu_data}
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"Error during NYU information extraction: {str(e)}")
