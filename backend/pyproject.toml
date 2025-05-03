@@ -13,8 +13,10 @@ dependencies = [
     "google-auth>=2.39.0",
     "google-auth-oauthlib>=1.2.2",
     "google-genai>=1.13.0",
+    "psycopg2-binary>=2.9.10",
     "pydantic>=2.11.3",
     "pydantic-settings>=2.9.1",
     "python-dotenv>=1.1.0",
+    "sqlalchemy>=2.0.40",
     "uvicorn[standard]>=0.34.2",
 ]

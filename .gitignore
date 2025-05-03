@@ -51,3 +51,5 @@ dashboard/*.sw?
 # === Credentials ===
 backend/credentials/
 backend/app/api/__pycache__/email.cpython-311.pyc
+backend/app/db/dbnotes.md
+backend/app/db/init_db.py

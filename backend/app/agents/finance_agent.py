@@ -88,7 +88,8 @@ class FinanceAgent:
         Return a JSON object with the following fields (leave empty if not found):
         - amount: monetary amount debited or credited
         - account_numbers: account or card numbers (partially masked if present)
-        - transaction_type: purchase, refund, payment, bill, statement, etc.
+        - transaction_purpose: purchase, refund, payment, bill, statement, etc.
+        - transaction_type: credit or debit
         - due_date: any payment due date in YYYY-MM-DD format
         - merchant: name of the merchant or company involved. clean it up for easier reading.
         - category: spending category (e.g., dining, travel, utilities, etc.). extract from merchant.
