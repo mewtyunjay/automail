@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif }
+    .header { padding: 8px; background: #f1f3f4; border-bottom: 1px solid #ddd; position: relative }
+    .content { padding: 8px }
+    #close-btn { position: absolute; top: 8px; right: 8px; border: none; background: none; font-size: 16px; cursor: pointer }
+  </style>
+</head>
+<body>
+  <div class="header"><h3>Gmail Info</h3><button id="close-btn">&times;</button></div>
+  <button id="summarise-btn" style="margin: 10px 8px 0 8px; padding: 6px 12px; font-size: 14px; cursor: pointer;">Summarise Email</button>
+  <div class="content" id="content">Loading…</div>
+  <div id="summary-result" style="padding:8px; color:#222; background:#f9f9f9; border-top:1px solid #eee; display:none;"></div>
+  <script src="iframe.js"></script>
+</body>
+</html>
