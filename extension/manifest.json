@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "Gmail Floating Window",
-  "version": "1.0",
+  "name": "Automail",
+  "version": "0.1.0",
   "description": "Injects a floating iframe UI into Gmail",
   "permissions": [
     "activeTab",

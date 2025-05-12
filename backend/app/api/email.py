@@ -8,7 +8,7 @@ from app.agents.summarizer import SummarizerAgent
 from app.agents.finance_agent import FinanceAgent
 from app.agents.todo_agent import TodoAgent
 from app.agents.reminder_agent import ReminderAgent
-from app.services.batch_processing import batch_processor
+from app.agents.batch_processor_agent import BatchProcessorAgent
 
 # Import database dependencies
 from app.db.database import get_db
@@ -17,14 +17,17 @@ from app.models.email import Email, Label, Reminder, Todo, FinanceData
 
 router = APIRouter()
 gmail_client = GmailClient()
-summarizer = SummarizerAgent()
-finance_agent = FinanceAgent()
-todo_agent = TodoAgent()
-reminder_agent = ReminderAgent()
+batch_agent = BatchProcessorAgent(
+    gmail_client,
+    SummarizerAgent(),
+    FinanceAgent(),
+    TodoAgent(),
+    ReminderAgent(),
+)
 
 @router.post("/batch-process")
 def batch_process_emails(
-    max_emails: int = Query(10, description="Maximum number of emails to process"),
+    max_emails: int = Query(20, description="Maximum number of emails to process"),
     query: str = Query("", description="Gmail search query to filter emails"),
     db: Session = Depends(get_db)):
     """
@@ -34,7 +37,7 @@ def batch_process_emails(
     agents (reminder, todo, finance), and stores the extracted data in the database.
     
     Args:
-        max_emails: Maximum number of emails to process (default: 10)
+        max_emails: Maximum number of emails to process (default: 20)
         query: Optional Gmail search query to filter emails
         db: Database session
         
@@ -42,7 +45,7 @@ def batch_process_emails(
         A dictionary with processing statistics and results
     """
     try:
-        result = batch_processor.process_recent_emails(db, max_emails=max_emails, query=query)
+        result = batch_agent.process_recent_emails(db, max_emails=max_emails, query=query)
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Batch processing failed: {str(e)}")
@@ -238,7 +241,7 @@ def summarize_message(message_id: str = Path(..., description="ID of the message
         A dictionary containing the summary of the message as a string
     """
     try:
-        summary = summarizer.run(message_id)
+        summary = SummarizerAgent().run(message_id)
         if not summary:
             raise HTTPException(status_code=404, detail=f"Message {message_id} not found")
         return {"summary": summary}
@@ -249,8 +252,8 @@ def summarize_message(message_id: str = Path(..., description="ID of the message
 async def summarize_content(content: str = Body(..., embed=True)) -> str:
     """Summarize email content directly passed in the request body. Used by extension."""
     try:
-        prompt = summarizer.compose_prompt(content)
-        summary = summarizer.call_agent(prompt)
+        prompt = SummarizerAgent().compose_prompt(content)
+        summary = SummarizerAgent().call_agent(prompt)
         if not summary:
              raise HTTPException(status_code=500, detail="Summarization failed or returned empty.")
         return summary
@@ -269,7 +272,7 @@ def extract_finance(message_id: str = Path(..., description="ID of the message t
         A dictionary containing structured financial information
     """
     try:
-        finance_data = finance_agent.run(message_id)
+        finance_data = FinanceAgent().run(message_id)
         if not finance_data:
             raise HTTPException(status_code=404, detail=f"Message {message_id} not found or contains no financial information")
         return {"finance_data": finance_data}
@@ -288,7 +291,7 @@ def extract_todos(message_id: str = Path(..., description="ID of the message to 
         A dictionary containing structured todo items
     """
     try:
-        todos_data = todo_agent.run(message_id)
+        todos_data = TodoAgent().run(message_id)
         if not todos_data:
             raise HTTPException(status_code=404, detail=f"Message {message_id} not found or contains no todo items")
         return {"todos_data": todos_data}
@@ -319,7 +322,7 @@ def extract_reminders(
                 email = EmailRepository.create_or_update_email(db, message)
         
         # Extract reminders using the agent
-        reminders_data = reminder_agent.run(message_id)
+        reminders_data = ReminderAgent().run(message_id)
         if not reminders_data:
             raise HTTPException(status_code=404, detail=f"Message {message_id} not found or contains no reminders")
         

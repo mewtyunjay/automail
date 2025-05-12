@@ -83,8 +83,28 @@ class SummarizerAgent:
             return None
     
     def compose_prompt(self, email_text: str) -> str:
-        base_prompt = f"""Summarize the following email concisely. Include key points, action items, and important details.
-        If there are attachments or links, mention them briefly.
+        base_prompt = f"""
+Analyze the following email thoroughly and extract all relevant information, regardless of the email's subject or type. Consider the context of professional, transactional, recruitment, and notification emails. Pay close attention to:
+
+Sender and Recipient: Identify who sent the email and to whom it is addressed.
+
+Subject Line: Note the main topic or purpose as indicated by the subject.
+
+Key Dates and Deadlines: Extract any dates, deadlines, or time-sensitive information.
+
+Action Items: List any required actions, tasks, or next steps for the recipient.
+
+Important Details: Capture critical information such as transaction IDs, reference numbers, application status, job titles, company names, links, or attachments.
+
+Main Content Summary: Briefly summarize the main message or purpose of the email in a few sentences.
+
+Tone and Urgency: Note the tone (e.g., formal, urgent, friendly) and indicate if immediate action is required.
+
+After extracting all relevant information, structure your response in a clear, concise format. If a custom instruction is provided (such as "summarise in 3 points"), ensure each point is information-rich, covering the most important aspects of the email. Each point should be self-contained and provide actionable or notable details, regardless of the email type.  Talk in first person, as if you're the user's assistant.
+
+Always ensure the summary is comprehensive and tailored to the specific content of the email, prioritizing clarity and relevance.
+
+Just output the summary, do not include any other text.
         """
         
         user_rules = None
